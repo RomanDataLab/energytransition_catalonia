@@ -1,0 +1,44 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python files (not needed for React app)
+*.py
+*.pyc
+__pycache__/
+
+# Original data files (keep only what's needed in public/)
+# Keep municipalities folder but ignore large source files
+/municipalities/*.csv
+/municipalities/*_labeled.geojson
+/municipalities/*.qmd
+
+# Keep only _e.geojson files in public/municipalities
+!public/municipalities/*_e.geojson
