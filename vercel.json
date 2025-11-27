@@ -11,6 +11,13 @@
   ],
   "routes": [
     {
+      "src": "/municipalities/(.*)",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "access-control-allow-origin": "*"
+      }
+    },
+    {
       "src": "/static/(.*)",
       "headers": {
         "cache-control": "public, max-age=31536000, immutable"

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import './LegendPanel.css';
 
-const LegendPanel = ({ selectedCity, geoJSONData }) => {
+const LegendPanel = ({ selectedCity, geoJSONData, loadingStatus = {} }) => {
   const [showMethodology, setShowMethodology] = useState(false);
 
   const labelColors = {
@@ -54,11 +54,19 @@ const LegendPanel = ({ selectedCity, geoJSONData }) => {
         )}
       </div>
 
-      {!selectedCity ? (
-        <div className="legend-placeholder">
-          Hover over or click a city map to view statistics
-        </div>
-      ) : statistics ? (
+            {!selectedCity ? (
+              <div className="legend-placeholder">
+                Hover over or click a city map to view statistics
+              </div>
+            ) : loadingStatus[selectedCity] === 'loading' ? (
+              <div className="legend-placeholder">
+                Loading statistics...
+              </div>
+            ) : loadingStatus[selectedCity] === 'error' ? (
+              <div className="legend-placeholder" style={{ color: '#ff4444' }}>
+                Error loading data for {selectedCity}
+              </div>
+            ) : statistics ? (
         <div className="legend-chart">
           {labelOrder.map(label => {
             const count = statistics.counts[label] || 0;
