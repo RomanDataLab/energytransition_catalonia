@@ -36,9 +36,9 @@ __pycache__/
 
 # Original data files (keep only what's needed in public/)
 # Keep municipalities folder but ignore large source files
-/municipalities/*.csv
-/municipalities/*_labeled.geojson
-/municipalities/*.qmd
+public/municipalities/*.csv
+public/municipalities/*_labeled.geojson
+public/municipalities/*.qmd
 
 # Keep only _e.geojson files in public/municipalities
 !public/municipalities/*_e.geojson
