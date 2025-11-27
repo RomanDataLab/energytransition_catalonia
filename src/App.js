@@ -27,6 +27,7 @@ function App() {
       setGeoJSONData(data);
     };
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

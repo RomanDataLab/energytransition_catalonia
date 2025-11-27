@@ -101,9 +101,13 @@ const LegendPanel = ({ selectedCity, geoJSONData }) => {
             Total: {statistics.total} buildings
           </div>
           <div className="methodology-link">
-            <a href="#" onClick={(e) => { e.preventDefault(); setShowMethodology(true); }}>
+            <button 
+              type="button"
+              className="methodology-button"
+              onClick={() => setShowMethodology(true)}
+            >
               methodology
-            </a>
+            </button>
           </div>
         </div>
       ) : (
