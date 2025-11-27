@@ -216,6 +216,7 @@ const CityMap = ({ city, geoJSONData }) => {
         map.invalidateSize();
       }
     }, 200);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geoJSONData, city]);
 
   return <div ref={mapRef} className="city-map" />;
