@@ -12,26 +12,25 @@ function App() {
   const cities = ['begur', 'gava', 'mataro', 'olot'];
 
   useEffect(() => {
-    // Load only _e GeoJSON files
+    // Load pre-reprojected (WGS84) GeoJSON files. Each city is published to
+    // state as soon as it arrives so its map paints progressively instead of
+    // waiting for the whole set.
     const loadData = async () => {
-      const data = {};
-      const status = {};
-      
       for (const city of cities) {
         try {
-          console.log(`Loading ${city}_e.geojson...`);
+          console.log(`Loading ${city}.geojson...`);
           setLoadingStatus(prev => ({ ...prev, [city]: 'loading' }));
-          
+
           // Use process.env.PUBLIC_URL if available, otherwise use relative path
           const baseUrl = process.env.PUBLIC_URL || '';
-          const url = `${baseUrl}/municipalities/${city}_e.geojson`;
-          
+          const url = `${baseUrl}/municipalities/${city}.geojson`;
+
           console.log(`Fetching from: ${url}`);
           const eData = await loadGeoJSONData(url);
-          
+
           if (eData && eData.features) {
             console.log(`${city}: Loaded ${eData.features.length} features`);
-            data[city] = { e: eData };
+            setGeoJSONData(prev => ({ ...prev, [city]: { e: eData } }));
             setLoadingStatus(prev => ({ ...prev, [city]: 'success' }));
           } else {
             throw new Error(`Invalid data structure for ${city}`);
@@ -41,10 +40,7 @@ function App() {
           setLoadingStatus(prev => ({ ...prev, [city]: 'error' }));
         }
       }
-      
-      console.log('All data loaded:', Object.keys(data));
-      console.log('Loading status:', status);
-      setGeoJSONData(data);
+      console.log('All data loaded');
     };
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps

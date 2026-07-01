@@ -1,12 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import proj4 from 'proj4';
 import './CityMap.css';
-
-// Define UTM Zone 31N projection (EPSG:25831) and WGS84
-const UTM31N = '+proj=utm +zone=31 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs';
-const WGS84 = '+proj=longlat +datum=WGS84 +no_defs';
 
 // Fix for default markers in Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
@@ -47,7 +42,10 @@ const CityMap = ({ city, geoJSONData }) => {
     const map = L.map(mapRef.current, {
       zoomControl: false,
       scrollWheelZoom: true,
-      attributionControl: false
+      attributionControl: false,
+      // Canvas renderer draws thousands of building polygons far more cheaply
+      // than the default SVG renderer (one <path> per building in the DOM).
+      preferCanvas: true
     });
 
     // Dark OSM tile layer using CartoDB Dark Matter
@@ -84,46 +82,6 @@ const CityMap = ({ city, geoJSONData }) => {
     };
   }, [city]);
 
-  // Transform coordinates from UTM to WGS84
-  const transformCoordinates = (coords) => {
-    // Handle nested arrays (Polygon, MultiPolygon)
-    if (Array.isArray(coords[0])) {
-      return coords.map(coord => transformCoordinates(coord));
-    }
-    // Handle coordinate pair [x, y] or [lon, lat]
-    if (coords.length >= 2 && typeof coords[0] === 'number' && typeof coords[1] === 'number') {
-      const [x, y] = coords;
-      try {
-        const [lon, lat] = proj4(UTM31N, WGS84, [x, y]);
-        return [lon, lat];
-      } catch (error) {
-        console.error('Coordinate transformation error:', error, 'Coords:', coords);
-        return coords; // Return original if transformation fails
-      }
-    }
-    return coords;
-  };
-
-  // Transform GeoJSON coordinates
-  const transformGeoJSON = (geojson) => {
-    if (!geojson) return null;
-    
-    const transformed = JSON.parse(JSON.stringify(geojson));
-    
-    const transformFeature = (feature) => {
-      if (feature.geometry && feature.geometry.coordinates) {
-        feature.geometry.coordinates = transformCoordinates(feature.geometry.coordinates);
-      }
-      return feature;
-    };
-    
-    if (transformed.features) {
-      transformed.features = transformed.features.map(transformFeature);
-    }
-    
-    return transformed;
-  };
-
   useEffect(() => {
     if (!mapInstanceRef.current || !geoJSONData || !geoJSONData.e) {
       console.log(`CityMap ${city}: Missing data`, { 
@@ -150,16 +108,16 @@ const CityMap = ({ city, geoJSONData }) => {
     // Clear layer reference
     layerRef.current = null;
 
-    // Add _e layer
-    const transformed = transformGeoJSON(geoJSONData.e);
-    if (!transformed || !transformed.features || transformed.features.length === 0) {
-      console.error(`CityMap ${city}: No features after transformation`);
+    // Data is already in WGS84 (reprojected offline) — feed it straight to Leaflet.
+    const geo = geoJSONData.e;
+    if (!geo || !geo.features || geo.features.length === 0) {
+      console.error(`CityMap ${city}: No features to render`);
       return;
     }
 
-    console.log(`CityMap ${city}: Adding ${transformed.features.length} features to map`);
+    console.log(`CityMap ${city}: Adding ${geo.features.length} features to map`);
 
-    const eLayer = L.geoJSON(transformed, {
+    const eLayer = L.geoJSON(geo, {
       style: (feature) => {
         const label = feature.properties?.energy_label;
         return {
